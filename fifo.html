@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CallCentre Queue Manager</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px 15px;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #132238;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        header {
+            background: #132238;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat, .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .stat h2 {
+            font-size: 30px;
+            margin: 8px 0;
+            color: #2563eb;
+        }
+
+        .panel {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .add-btn {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+        }
+
+        .serve-btn {
+            background: #15803d;
+            color: white;
+        }
+
+        .complete-btn {
+            background: #0f766e;
+            color: white;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .caller {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .caller strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .caller small {
+            color: #64748b;
+        }
+
+        .first {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
+            padding: 25px 10px;
+        }
+
+        #currentCall {
+            background: #dcfce7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        #currentCall h3 {
+            margin-top: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat {
+                padding: 12px 18px;
+            }
+
+            .stat h2 {
+                font-size: 25px;
+            }
+
+            .caller {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>☎ CallCentre</h1>
+        <p>Customer Service Queue Management System</p>
+    </header>
+
+    <div class="stats">
+        <div class="stat">
+            <p>Waiting Callers</p>
+            <h2 id="waitingCount">0</h2>
+        </div>
+
+        <div class="stat">
+            <p>Completed Calls</p>
+            <h2 id="completedCount">0</h2>
+        </div>
+
+        <div class="stat">
+            <p>Active Call</p>
+            <h2 id="activeCount">0</h2>
+        </div>
+    </div>
+
+    <section class="panel">
+        <h2>Add a Caller</h2>
+        <p>Enter the customer's details to join the waiting queue.</p>
+
+        <form id="callerForm">
+
+            <label for="callerName">Customer Name</label>
+            <input
+                type="text"
+                id="callerName"
+                placeholder="Enter customer name"
+                required
+            >
+
+            <label for="callerPhone">Phone Number</label>
+            <input
+                type="tel"
+                id="callerPhone"
+                placeholder="Enter phone number"
+                required
+            >
+
+            <button type="submit" class="add-btn">
+                Add to Queue
+            </button>
+
+        </form>
+
+        <div id="message" class="message">
+            Welcome! Add a caller to begin.
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Waiting Queue</h2>
+        <p>Callers are served in the order they arrive (FIFO).</p>
+
+        <button id="serveBtn" class="serve-btn" disabled>
+            Call Next Customer
+        </button>
+
+        <div id="currentCall" class="hidden">
+            <h3>Currently on Call</h3>
+            <p id="activeName"></p>
+            <p id="activePhone"></p>
+
+            <button id="completeBtn" class="complete-btn">
+                Complete Call
+            </button>
+        </div>
+
+        <div id="queueList"></div>
+    </section>
+
+    <section class="panel">
+        <h2>Completed Calls</h2>
+        <div id="historyList">
+            <p class="empty">No calls completed yet.</p>
+        </div>
+    </section>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
