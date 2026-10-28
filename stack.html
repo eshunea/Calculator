@@ -1,0 +1,407 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StackCalc</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eaf5e9;
+            color: #17251b;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 390px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 22px;
+            box-shadow: 0 12px 35px #183d251a;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            text-align: center;
+            color: #246b3b;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7b70;
+            font-size: 13px;
+            margin: 8px 0 22px;
+        }
+
+        .display {
+            background: #17251b;
+            color: #a9f5b8;
+            padding: 18px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+        }
+
+        .display label {
+            display: block;
+            font-size: 12px;
+            color: #c0d5c5;
+            margin-bottom: 8px;
+        }
+
+        #expression {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: white;
+            font-size: 20px;
+            padding: 5px 0;
+        }
+
+        #expression::placeholder {
+            color: #82998a;
+        }
+
+        .result-box {
+            border-top: 1px solid #405447;
+            margin-top: 12px;
+            padding-top: 12px;
+        }
+
+        .result-label {
+            color: #c0d5c5;
+            font-size: 12px;
+        }
+
+        #result {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+            margin-bottom: 18px;
+        }
+
+        .key {
+            border: none;
+            border-radius: 10px;
+            padding: 14px 5px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #edf5ee;
+            color: #246b3b;
+            transition: 0.2s;
+        }
+
+        .key:hover {
+            background: #d6ead9;
+        }
+
+        .key.operator {
+            background: #d9f5df;
+        }
+
+        .key.clear {
+            background: #ffe5df;
+            color: #a43c2d;
+        }
+
+        .calculate {
+            width: 100%;
+            border: none;
+            border-radius: 11px;
+            padding: 15px;
+            background: #287a43;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .calculate:hover {
+            background: #1d6033;
+        }
+
+        .stack-section {
+            margin-top: 22px;
+        }
+
+        .stack-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        #stackCount {
+            font-size: 12px;
+            color: #6b7b70;
+            font-weight: normal;
+        }
+
+        #stack {
+            min-height: 65px;
+            padding: 10px;
+            border: 2px dashed #c9ddcc;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stack-item {
+            width: 85%;
+            padding: 9px;
+            border-radius: 7px;
+            text-align: center;
+            background: #d9f5df;
+            color: #246b3b;
+            font-weight: bold;
+        }
+
+        .empty {
+            color: #84958a;
+            font-size: 13px;
+            padding: 12px 0;
+        }
+
+        #message {
+            min-height: 20px;
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+            color: #246b3b;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #718075;
+            text-align: center;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="calculator">
+        <h1>StackCalc</h1>
+        <p class="subtitle">Postfix Expression Calculator</p>
+
+        <section class="display">
+            <label for="expression">ENTER POSTFIX EXPRESSION</label>
+            <input
+                type="text"
+                id="expression"
+                placeholder="e.g. 5 3 +"
+                autocomplete="off"
+            >
+
+            <div class="result-box">
+                <div class="result-label">RESULT</div>
+                <div id="result">0</div>
+            </div>
+        </section>
+
+        <div class="keypad">
+            <button class="key" data-value="7">7</button>
+            <button class="key" data-value="8">8</button>
+            <button class="key" data-value="9">9</button>
+            <button class="key operator" data-value="+">+</button>
+
+            <button class="key" data-value="4">4</button>
+            <button class="key" data-value="5">5</button>
+            <button class="key" data-value="6">6</button>
+            <button class="key operator" data-value="-">−</button>
+
+            <button class="key" data-value="1">1</button>
+            <button class="key" data-value="2">2</button>
+            <button class="key" data-value="3">3</button>
+            <button class="key operator" data-value="*">×</button>
+
+            <button class="key clear" id="clearButton">AC</button>
+            <button class="key" data-value="0">0</button>
+            <button class="key" data-value=" ">Space</button>
+            <button class="key operator" data-value="/">÷</button>
+        </div>
+
+        <button class="calculate" id="calculateButton">
+            Calculate
+        </button>
+
+        <section class="stack-section">
+            <div class="stack-heading">
+                <span>Stack Memory</span>
+                <span id="stackCount">0 items</span>
+            </div>
+
+            <div id="stack">
+                <div class="empty">Your stack is empty</div>
+            </div>
+        </section>
+
+        <div id="message" role="status"></div>
+
+        <p class="hint">
+            Enter numbers and operators in postfix order.<br>
+            Example: <strong>5 3 +</strong> = 8<br>
+            <strong>LIFO:</strong> Last In, First Out
+        </p>
+    </main>
+
+    <script>
+        const expressionInput = document.getElementById("expression");
+        const resultDisplay = document.getElementById("result");
+        const stackDisplay = document.getElementById("stack");
+        const stackCount = document.getElementById("stackCount");
+        const message = document.getElementById("message");
+
+        document.querySelectorAll("[data-value]").forEach(button => {
+            button.addEventListener("click", () => {
+                expressionInput.value += button.dataset.value;
+                expressionInput.focus();
+            });
+        });
+
+        document.getElementById("clearButton").addEventListener("click", clearCalculator);
+
+        document.getElementById("calculateButton").addEventListener("click", calculate);
+
+        expressionInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                calculate();
+            }
+        });
+
+        function clearCalculator() {
+            expressionInput.value = "";
+            resultDisplay.textContent = "0";
+            message.textContent = "";
+            renderStack([]);
+            expressionInput.focus();
+        }
+
+        function renderStack(stack) {
+            stackDisplay.innerHTML = "";
+
+            stackCount.textContent =
+                stack.length + (stack.length === 1 ? " item" : " items");
+
+            if (stack.length === 0) {
+                stackDisplay.innerHTML =
+                    '<div class="empty">Your stack is empty</div>';
+                return;
+            }
+
+            stack.forEach(value => {
+                const item = document.createElement("div");
+                item.className = "stack-item";
+                item.textContent = value;
+                stackDisplay.appendChild(item);
+            });
+        }
+
+        function calculate() {
+            const expression = expressionInput.value.trim();
+
+            resultDisplay.textContent = "—";
+            message.textContent = "";
+
+            if (!expression) {
+                message.textContent = "Please enter an expression.";
+                renderStack([]);
+                return;
+            }
+
+            const stack = [];
+            const tokens = expression.split(/\s+/);
+            const operators = ["+", "-", "*", "/"];
+
+            try {
+                for (const token of tokens) {
+                    if (/^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(token)) {
+                        stack.push(Number(token));
+                    } else if (operators.includes(token)) {
+                        if (stack.length < 2) {
+                            throw new Error("Not enough numbers for " + token);
+                        }
+
+                        const second = stack.pop();
+                        const first = stack.pop();
+                        let answer;
+
+                        switch (token) {
+                            case "+":
+                                answer = first + second;
+                                break;
+                            case "-":
+                                answer = first - second;
+                                break;
+                            case "*":
+                                answer = first * second;
+                                break;
+                            case "/":
+                                if (second === 0) {
+                                    throw new Error("Cannot divide by zero.");
+                                }
+                                answer = first / second;
+                                break;
+                        }
+
+                        if (!Number.isFinite(answer)) {
+                            throw new Error("The result is too large.");
+                        }
+
+                        stack.push(answer);
+                    } else {
+                        throw new Error("Invalid entry: " + token);
+                    }
+
+                    renderStack(stack);
+                }
+
+                if (stack.length !== 1) {
+                    throw new Error(
+                        "Invalid expression. Check your numbers and operators."
+                    );
+                }
+
+                const finalAnswer = stack[0];
+                resultDisplay.textContent =
+                    Number(finalAnswer.toPrecision(12)).toString();
+
+                message.textContent = "Calculation completed successfully!";
+            } catch (error) {
+                resultDisplay.textContent = "Error";
+                message.textContent = error.message;
+            }
+        }
+
+        renderStack([]);
+    </script>
+
+</body>
+</html>
+```
